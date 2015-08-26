@@ -9,6 +9,8 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
+use yii\web\ForbiddenHttpException;
+use yii\helpers\VarDumper;
 
 /**
  * BlogController implements the CRUD actions for Blog model.
@@ -26,16 +28,30 @@ class BlogController extends Controller
             ],
             'access'=>[
               'class'=>AccessControl::className(),
+              'denyCallback' => function ($rule, $action) {
+                  throw new ForbiddenHttpException('คุณไม่ได้รับอนุญาติให้เข้าใช้งาน กรุณาติดต่อผู้ดูแลระบบ @dixonSait');
+              },
               'rules'=>[
                 [
                   'allow'=>true,
-                  'actions'=>['index','create','view','update'],
+                  'actions'=>['index','view','create'],
                   'roles'=>['Author']
                 ],
                 [
                   'allow'=>true,
+                  'actions'=>['update'],
+                  'roles'=>['Author'],
+                  'matchCallback'=>function($rule,$action){
+                    $model = $this->findModel(Yii::$app->request->get('id'));
+                    if (\Yii::$app->user->can('UpdateBlog',['model'=>$model])) {
+                             return true;
+                    }
+                  }
+                ],
+                [
+                  'allow'=>true,
                   'actions'=>['delete'],
-                  'roles'=>['Editor']
+                  'roles'=>['Admin']
                 ]
               ]
             ]
@@ -76,6 +92,15 @@ class BlogController extends Controller
      */
     public function actionCreate()
     {
+      $manager = Yii::$app->getAuthManager();
+      $permission = $manager->getRolesByUser(Yii::$app->user->id);
+      //VarDumper::dump($permission,10,true);
+      // print_r($manager->checkAccess(Yii::$app->user->id,'Admin'));
+      // print_r($manager->checkAccess(Yii::$app->user->id,'Author'));
+      // print_r($manager->checkAccess(Yii::$app->user->id,'UpdateBlog'));
+      // //print_r($manager->checkAccess(Yii::$app->user->id,'UpdateOwnBlog'));
+      // print_r($manager->checkAccess(Yii::$app->user->id,'CreateBlog'));
+
         $model = new Blog();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
@@ -95,7 +120,8 @@ class BlogController extends Controller
      */
     public function actionUpdate($id)
     {
-        $model = $this->findModel($id);
+      $model = $this->findModel($id);
+      //if (\Yii::$app->user->can('update-app', ['blog' => $model])) {
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
@@ -104,6 +130,10 @@ class BlogController extends Controller
                 'model' => $model,
             ]);
         }
+
+      // }else{
+      //   throw new ForbiddenHttpException('คุณไม่มีสิทธิ์เข้าใช้งานส่วนนี้');
+      // }
     }
 
     /**
