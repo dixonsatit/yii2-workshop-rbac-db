@@ -28,7 +28,7 @@ AppAsset::register($this);
 <div class="wrap">
     <?php
     NavBar::begin([
-        'brandLabel' => 'My Company',
+        'brandLabel' => 'Yii 2 Learning',
         'brandUrl' => Yii::$app->homeUrl,
         'options' => [
             'class' => 'navbar-default navbar-fixed-top',
@@ -44,11 +44,15 @@ AppAsset::register($this);
         $menuItems[] = ['label' => 'Signup', 'url' => ['/site/signup']];
         $menuItems[] = ['label' => 'Login', 'url' => ['/site/login']];
     } else {
+
         $menuItems[] = [
-            'label' => 'Logout (' . Yii::$app->user->identity->username . ')',
-            'url' => ['/site/logout'],
-            'linkOptions' => ['data-method' => 'post']
-        ];
+        'label' => 'Account (' . Yii::$app->user->identity->username . ')',
+        'items'=>[
+            ['label' => 'Profile', 'url' => ['/profile/index']],
+            ['label' => 'Update Profile', 'url' => ['/profile/update']],
+            [ 'label'=>'ออกจากระบบ','url' => ['/site/logout'],'linkOptions' => ['data-method' => 'post']]
+        ]
+      ];
     }
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav navbar-right'],

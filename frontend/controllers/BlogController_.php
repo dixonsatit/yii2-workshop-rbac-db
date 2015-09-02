@@ -121,6 +121,8 @@ class BlogController extends Controller
     public function actionUpdate($id)
     {
       $model = $this->findModel($id);
+      //if (\Yii::$app->user->can('update-app', ['blog' => $model])) {
+
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
@@ -128,6 +130,10 @@ class BlogController extends Controller
                 'model' => $model,
             ]);
         }
+
+      // }else{
+      //   throw new ForbiddenHttpException('คุณไม่มีสิทธิ์เข้าใช้งานส่วนนี้');
+      // }
     }
 
     /**

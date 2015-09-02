@@ -14,17 +14,9 @@ class AuthorRule extends Rule
      * @param array $params parameters passed to ManagerInterface::checkAccess().
      * @return boolean a value indicating whether the rule permits the role or permission it is associated with.
      */
-    public function execute($user, $item, $params)
+    public function execute($user_id, $item, $params)
     {
-        // if(isset($params['model'])){
-        //   $model = $params['model'];
-        // }
-        // else{
-        //   $id = \Yii::$app->controller->find
-        // }
-        //
-        // return $model->created_by == $user;
-        return isset($params['model']) ? $params['model']->created_by == $user : false;
+        return isset($params['model']) ? $params['model']->created_by == $user_id : false;
     }
 }
  ?>

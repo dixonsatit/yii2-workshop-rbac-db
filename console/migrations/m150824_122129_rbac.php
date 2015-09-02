@@ -13,34 +13,50 @@ class m150824_122129_rbac extends Migration
       Console::output('Removing All! RBAC.....');
 
       $createPost = $auth->createPermission('createBlog');
-      $createPost->description = 'Create a application';
+      $createPost->description = 'สร้าง blog';
       $auth->add($createPost);
 
       $updatePost = $auth->createPermission('updateBlog');
-      $updatePost->description = 'Update application';
+      $updatePost->description = 'แก้ไข blog';
       $auth->add($updatePost);
 
-      $admin = $auth->createRole('Admin');
-      $auth->add($admin);
+      $loginToBackend = $auth->createPermission('loginToBackend');
+      $loginToBackend->description = 'ล็อกอินเข้าใช้งานส่วน backend';
+      $auth->add($loginToBackend);
+
+      $manageUser = $auth->createRole('ManageUser');
+      $manageUser->description = 'จัดการข้อมูลผู้ใช้งาน';
+      $auth->add($manageUser);
 
       $author = $auth->createRole('Author');
+      $author->description = 'การเขียนบทความ';
       $auth->add($author);
 
       $management = $auth->createRole('Management');
+      $management->description = 'จัดการข้อมูลผู้ใช้งานและบทความ';
       $auth->add($management);
+
+      $admin = $auth->createRole('Admin');
+      $admin->description = 'สำหรับการดูแลระบบ';
+      $auth->add($admin);
 
       $rule = new \common\rbac\AuthorRule;
       $auth->add($rule);
 
       $updateOwnPost = $auth->createPermission('updateOwnPost');
-      $updateOwnPost->description = 'Update Own Post';
+      $updateOwnPost->description = 'แก้ไขบทความตัวเอง';
       $updateOwnPost->ruleName = $rule->name;
       $auth->add($updateOwnPost);
 
       $auth->addChild($author,$createPost);
       $auth->addChild($updateOwnPost, $updatePost);
       $auth->addChild($author, $updateOwnPost);
+
+      $auth->addChild($manageUser, $loginToBackend);
+
+      $auth->addChild($management, $manageUser);
       $auth->addChild($management, $author);
+
       $auth->addChild($admin, $management);
 
       $auth->assign($admin, 1);

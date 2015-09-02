@@ -6,6 +6,7 @@ use yii\base\NotSupportedException;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
+use yii\helpers\ArrayHelper;
 
 /**
  * User model
@@ -26,6 +27,16 @@ class User extends ActiveRecord implements IdentityInterface
     const STATUS_DELETED = 0;
     const STATUS_ACTIVE = 10;
 
+    public $password;
+    public $confirm_password;
+    public $roles;
+
+    public function scenarios()
+    {
+		    $scenarios = parent::scenarios();
+        $scenarios['registration'] = ['username','email'];
+        return $scenarios;
+    }
     /**
      * @inheritdoc
      */
@@ -47,13 +58,34 @@ class User extends ActiveRecord implements IdentityInterface
     /**
      * @inheritdoc
      */
-    public function rules()
-    {
-        return [
-            ['status', 'default', 'value' => self::STATUS_ACTIVE],
-            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
-        ];
-    }
+     public function rules()
+         {
+             return [
+                 //['status', 'required'],
+                 ['status', 'default', 'value' => self::STATUS_ACTIVE],
+                 ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
+
+                 ['username', 'filter', 'filter' => 'trim'],
+                 ['username', 'required'],
+                 ['username', 'unique', 'targetClass' => '\common\models\User', 'message' => 'This username has already been taken.'],
+                 ['username', 'string', 'min' => 2, 'max' => 255],
+
+                 ['email', 'filter', 'filter' => 'trim'],
+                 ['email', 'required'],
+                 ['email', 'email'],
+                 ['email', 'unique', 'targetClass' => '\common\models\User', 'message' => 'This email address has already been taken.'],
+
+                 ['password', 'required'],
+                 ['password', 'string', 'min' => 6],
+
+                 ['confirm_password', 'required'],
+                 ['confirm_password', 'string', 'min' => 6],
+                 ['confirm_password', 'compare','compareAttribute'=>'password'],
+
+                 ['roles', 'safe']
+
+             ];
+         }
 
     /**
      * @inheritdoc
@@ -184,5 +216,47 @@ class User extends ActiveRecord implements IdentityInterface
     public function removePasswordResetToken()
     {
         $this->password_reset_token = null;
+    }
+
+    public function getItemStatus(){
+      return [
+        self::STATUS_ACTIVE => 'Active',
+        self::STATUS_DELETED => 'Deleted'
+      ];
+    }
+    public function getStatusName()
+    {
+      $items = $this->getItemStatus();
+      return array_key_exists($this->status, $items) ? $items[$this->status] : '';
+    }
+
+    public function getAllRoles(){
+      $auth = $auth = Yii::$app->authManager;
+      return ArrayHelper::map($auth->getRoles(),'name','name');
+    }
+
+    public function getRoleByUser(){
+      $auth = Yii::$app->authManager;
+      $rolesUser = $auth->getRolesByUser($this->id);
+      $roleItems = $this->getAllRoles();
+      $roleSelect=[];
+
+      foreach ($roleItems as $key => $roleName) {
+        foreach ($rolesUser as $role) {
+          if($key==$role->name){
+            $roleSelect[$key]=$roleName;
+          }
+        }
+      }
+      $this->roles = $roleSelect;
+    }
+
+    public function assignment(){
+        $auth = Yii::$app->authManager;
+        $roleUser = $auth->getRolesByUser($this->id);
+        $auth->revokeAll($this->id);
+        foreach ($this->roles as $key => $roleName) {
+          $auth->assign($auth->getRole($roleName),$this->id);
+        }
     }
 }
