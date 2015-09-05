@@ -10,9 +10,7 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 
-/**
- * ProfileController implements the CRUD actions for User model.
- */
+
 class ProfileController extends Controller
 {
     public $layout = 'profile'; // set this to profile,profile2
