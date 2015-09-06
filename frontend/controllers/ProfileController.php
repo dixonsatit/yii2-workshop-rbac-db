@@ -43,12 +43,15 @@ class ProfileController extends Controller
      * @param integer $id
      * @return mixed
      */
+
+
     public function actionIndex()
     {
         return $this->render('index', [
             'model' => $this->findModel(Yii::$app->user->id),
         ]);
     }
+
 
     /**
      * Updates an existing User model.

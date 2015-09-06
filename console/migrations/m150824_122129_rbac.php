@@ -12,6 +12,21 @@ class m150824_122129_rbac extends Migration
       $auth->removeAll();
       Console::output('Removing All! RBAC.....');
 
+      $rule = new \common\rbac\AuthorRule;
+      $auth->add($rule);
+
+      // $index  = $auth->createPermission('blog/index');
+      // $auth->add($index);
+      // $view   = $auth->createPermission('blog/view');
+      // $auth->add($view);
+      // $create = $auth->createPermission('blog/create');
+      // $auth->add($create);
+      // $update = $auth->createPermission('blog/update');
+      // $update->ruleName = $rule->name;
+      // $auth->add($update);
+      // $delete = $auth->createPermission('blog/delete');
+      // $auth->add($delete);
+
       $createPost = $auth->createPermission('createBlog');
       $createPost->description = 'สร้าง blog';
       $auth->add($createPost);
@@ -40,13 +55,16 @@ class m150824_122129_rbac extends Migration
       $admin->description = 'สำหรับการดูแลระบบ';
       $auth->add($admin);
 
-      $rule = new \common\rbac\AuthorRule;
-      $auth->add($rule);
-
       $updateOwnPost = $auth->createPermission('updateOwnPost');
       $updateOwnPost->description = 'แก้ไขบทความตัวเอง';
       $updateOwnPost->ruleName = $rule->name;
       $auth->add($updateOwnPost);
+
+      // $auth->addChild($author,$index);
+      // $auth->addChild($author,$view);
+      // $auth->addChild($author,$create);
+      // $auth->addChild($author,$update);
+      // $auth->addChild($management, $delete);
 
       $auth->addChild($author,$createPost);
       $auth->addChild($updateOwnPost, $updatePost);
@@ -62,7 +80,7 @@ class m150824_122129_rbac extends Migration
       $auth->assign($admin, 1);
       $auth->assign($management, 2);
       $auth->assign($author, 3);
-      $auth->assign($author, 4);
+      //$auth->assign($author, 4);
 
       Console::output('Success! RBAC roles has been added.');
     }

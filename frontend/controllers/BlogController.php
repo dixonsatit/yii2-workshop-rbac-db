@@ -17,6 +17,44 @@ use yii\helpers\VarDumper;
  */
 class BlogController extends Controller
 {
+
+    // public function behaviors(){
+    //   return [
+    //             'verbs' => [
+    //                 'class' => VerbFilter::className(),
+    //                 'actions' => [
+    //                     'delete' => ['post'],
+    //                 ],
+    //             ],
+    //             'access'=>[
+    //                 'class'=>AccessControl::className(),
+    //                 'rules'=>[
+    //                     [
+    //                       'allow'=>true,
+    //                       'actions'=>['update'],
+    //                       'roles'=>['@'],
+    //                       'matchCallback'=>function($rule,$action){
+    //                         $model = $this->findModel(Yii::$app->request->get('id'));
+    //                         if (\Yii::$app->user->can('blog/update',['model'=>$model])) {
+    //                                  return true;
+    //                         }
+    //                       }
+    //                     ],
+    //                     [
+    //                         'allow'=>true,
+    //                         'roles'=>['@'],
+    //                         'matchCallback'=>function($rule,$action){
+    //                           $currentRoute = Yii::$app->controller->getRoute();
+    //                           if(Yii::$app->user->can($currentRoute)){
+    //                             return true;
+    //                           }
+    //                         }
+    //                     ]
+    //                 ]
+    //             ]
+    //   ];
+    // }
+
     public function behaviors()
     {
         return [
@@ -92,15 +130,6 @@ class BlogController extends Controller
      */
     public function actionCreate()
     {
-      $manager = Yii::$app->getAuthManager();
-      $permission = $manager->getRolesByUser(Yii::$app->user->id);
-      //VarDumper::dump($permission,10,true);
-      // print_r($manager->checkAccess(Yii::$app->user->id,'Admin'));
-      // print_r($manager->checkAccess(Yii::$app->user->id,'Author'));
-      // print_r($manager->checkAccess(Yii::$app->user->id,'UpdateBlog'));
-      // //print_r($manager->checkAccess(Yii::$app->user->id,'UpdateOwnBlog'));
-      // print_r($manager->checkAccess(Yii::$app->user->id,'CreateBlog'));
-
         $model = new Blog();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
