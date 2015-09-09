@@ -64,35 +64,32 @@ class BlogController extends Controller
                     'delete' => ['post'],
                 ],
             ],
-            'access'=>[
-              'class'=>AccessControl::className(),
-              'denyCallback' => function ($rule, $action) {
-                  throw new ForbiddenHttpException('คุณไม่ได้รับอนุญาติให้เข้าใช้งาน!');
-              },
-              'rules'=>[
-                [
-                  'allow'=>true,
-                  'actions'=>['index','view','create'],
-                  'roles'=>['Author']
-                ],
-                [
-                  'allow'=>true,
-                  'actions'=>['update'],
-                  'roles'=>['Author'],
-                  'matchCallback'=>function($rule,$action){
-                    $model = $this->findModel(Yii::$app->request->get('id'));
-                    if (\Yii::$app->user->can('UpdateBlog',['model'=>$model])) {
-                             return true;
-                    }
-                  }
-                ],
-                [
-                  'allow'=>true,
-                  'actions'=>['delete'],
-                  'roles'=>['Admin']
-                ]
-              ]
-            ]
+            // 'access'=>[
+            //   'class'=>AccessControl::className(),
+            //   'rules'=>[
+            //     [
+            //       'allow'=>true,
+            //       'actions'=>['index','view','create'],
+            //       'roles'=>['Author']
+            //     ],
+            //     [
+            //       'allow'=>true,
+            //       'actions'=>['update'],
+            //       'roles'=>['Author'],
+            //       'matchCallback'=>function($rule,$action){
+            //         $model = $this->findModel(Yii::$app->request->get('id'));
+            //         if (\Yii::$app->user->can('UpdateBlog',['model'=>$model])) {
+            //                  return true;
+            //         }
+            //       }
+            //     ],
+            //     [
+            //       'allow'=>true,
+            //       'actions'=>['delete'],
+            //       'roles'=>['Admin']
+            //     ]
+            //   ]
+            // ]
         ];
     }
 

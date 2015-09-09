@@ -12,7 +12,7 @@ use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
-
+use yii\web\ForbiddenHttpException;
 /**
  * Site controller
  */
@@ -27,6 +27,9 @@ class SiteController extends Controller
             'access' => [
                 'class' => AccessControl::className(),
                 'only' => ['logout', 'signup'],
+                'denyCallback' => function ($rule, $action) {
+                     throw new ForbiddenHttpException('คุณไม่ได้รับอนุญาติให้เข้าใช้งาน!');
+                 },
                 'rules' => [
                     [
                         'actions' => ['signup'],
