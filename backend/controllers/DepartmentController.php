@@ -3,17 +3,16 @@
 namespace backend\controllers;
 
 use Yii;
-use common\models\User;
-use backend\models\UserSearch;
+use common\models\Department;
+use backend\models\DepartmentSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-use yii\filters\AccessControl;
 
 /**
- * ManageUserController implements the CRUD actions for User model.
+ * DepartmentController implements the CRUD actions for Department model.
  */
-class ManageUserController extends Controller
+class DepartmentController extends Controller
 {
     public function behaviors()
     {
@@ -28,12 +27,12 @@ class ManageUserController extends Controller
     }
 
     /**
-     * Lists all User models.
+     * Lists all Department models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel = new UserSearch();
+        $searchModel = new DepartmentSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -43,7 +42,7 @@ class ManageUserController extends Controller
     }
 
     /**
-     * Displays a single User model.
+     * Displays a single Department model.
      * @param integer $id
      * @return mixed
      */
@@ -55,20 +54,15 @@ class ManageUserController extends Controller
     }
 
     /**
-     * Creates a new User model.
+     * Creates a new Department model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new User();
+        $model = new Department();
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            $model->setPassword($model->password);
-            $model->generateAuthKey();
-            if($model->save()){
-              $model->assignment();
-            }
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('create', [
@@ -78,7 +72,7 @@ class ManageUserController extends Controller
     }
 
     /**
-     * Updates an existing User model.
+     * Updates an existing Department model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -86,19 +80,8 @@ class ManageUserController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-        $model->getRoleByUser();
-        $model->password = $model->password_hash;
-        $model->confirm_password = $model->password_hash;
-        $oldPass = $model->password_hash;
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-          if($oldPass!==$model->password){
-            $model->setPassword($model->password);
-          }
-          if($model->save()){
-            $model->assignment();
-          }
-
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('update', [
@@ -108,7 +91,7 @@ class ManageUserController extends Controller
     }
 
     /**
-     * Deletes an existing User model.
+     * Deletes an existing Department model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -121,15 +104,15 @@ class ManageUserController extends Controller
     }
 
     /**
-     * Finds the User model based on its primary key value.
+     * Finds the Department model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return User the loaded model
+     * @return Department the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = User::findOne($id)) !== null) {
+        if (($model = Department::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

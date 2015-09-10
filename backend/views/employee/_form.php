@@ -1,7 +1,10 @@
 <?php
 
 use yii\helpers\Html;
-use yii\widgets\ActiveForm;
+use yii\helpers\ArrayHelper;
+use yii\bootstrap\ActiveForm;
+use common\models\Department;
+use yii\widgets\MaskedInput;
 
 /* @var $this yii\web\View */
 /* @var $model common\models\Employee */
@@ -63,22 +66,28 @@ use yii\widgets\ActiveForm;
 
 <div class="row">
   <div class="col-md-4">
-    <?= $form->field($model, 'personal_id')->widget(\yii\widgets\MaskedInput::className(), [
-    'mask' => '9-9999-99999-99-9',
-]) ?>
-
+    <?= $form->field($model, 'personal_id')->widget(MaskedInput::className(), [
+    'mask' => '9-9999-99999-99-9']) ?>
   </div>
   <div class="col-md-4">
-    <?= $form->field($model, 'department_id')->textInput() ?>
+    <?= $form->field($model, 'department_id')->widget(\kartik\widgets\Select2::classname(), [
+        'data' => ArrayHelper::map(Department::find()->all(),'id','name'), // set the initial display text
+        'options' => ['placeholder' => 'เลือกแผนก ...'],
+        'pluginOptions' => [
+            'allowClear' => true
+        ],
+    ]); ?>
+    <?php $form->field($model, 'department_id')->dropdownList(ArrayHelper::map(Department::find()->all(),'id','name')) ?>
   </div>
   <div class="col-md-4">
-    <?= $form->field($model, 'ceallphone')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'ceallphone')->widget(MaskedInput::className(), [
+    'mask' => '999-9999999']) ?>
   </div>
 </div>
 
 
 <?= $form->field($model, 'skill')->widget(\kartik\widgets\Select2::classname(), [
-    'initValueText' => $model->getItemSkill(), // set the initial display text
+    'data' => $model->getItemSkill(), // set the initial display text
     'options' => ['placeholder' => 'เลือกทักษะ ...','multiple' => true],
     'pluginOptions' => [
         'allowClear' => true
@@ -88,13 +97,23 @@ use yii\widgets\ActiveForm;
 
 
 </fieldset>
-<fieldset>
+<fieldset  style="margin-top:30px">
   <legend>ข้อมูลบัญชี</legend>
-  <?= $form->field($modelUser, 'username') ?>
+  <?= $form->field($modelUser, 'username')->textInput(['maxlength' => true]) ?>
+  <div class="row">
+    <div class="col-lg-6">
+        <?= $form->field($modelUser, 'password')->passwordInput(['maxlength' => true]) ?>
+    </div>
+    <div class="col-lg-6">
+      <?= $form->field($modelUser, 'confirm_password')->passwordInput(['maxlength' => true]) ?>
+    </div>
+  </div>
+  <?= $form->field($modelUser, 'email')->textInput(['maxlength' => true]) ?>
 
-  <?= $form->field($modelUser, 'email') ?>
+  <?= $form->field($modelUser, 'roles')->checkboxList($modelUser->getAllRoles()) ?>
 
-  <?= $form->field($modelUser, 'password')->passwordInput() ?>
+  <?= $form->field($modelUser, 'status')->radioList($modelUser->getItemStatus()) ?>
+
 </fieldset
 
 

@@ -5,6 +5,8 @@ namespace common\models;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\behaviors\BlameableBehavior;
+use yii\behaviors\AttributeBehavior;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "{{%employee}}".
@@ -39,7 +41,17 @@ class Employee extends \yii\db\ActiveRecord
     public function behaviors(){
       return [
         TimestampBehavior::className(),
-        BlameableBehavior::className()
+        BlameableBehavior::className(),
+        [
+            'class' => AttributeBehavior::className(),
+            'attributes' => [
+                ActiveRecord::EVENT_BEFORE_INSERT => 'skill',
+                ActiveRecord::EVENT_BEFORE_UPDATE => 'skill',
+            ],
+            'value' => function ($event) {
+                return $this->arrayToString($this->skill);
+            },
+        ]
       ];
     }
     /**
@@ -56,9 +68,9 @@ class Employee extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['title','name','surname','gender','birthday','blood_type','ceallphone','personal_id'], 'required'],
+            [['title','name','surname','gender','birthday','blood_type','ceallphone','personal_id','department_id'], 'required'],
             [['gender'], 'string'],
-            [['birthday'], 'safe'],
+            [['birthday','skill'], 'safe'],
             [['height', 'weight', 'nationality', 'race', 'religion', 'department_id', 'user_id', 'created_by', 'created_at', 'updated_by', 'updated_at'], 'integer'],
             [['salary'], 'number'],
             [['title'], 'string', 'max' => 100],
@@ -66,8 +78,7 @@ class Employee extends \yii\db\ActiveRecord
             [['blood_type'], 'string', 'max' => 10],
             [['ceallphone'], 'string', 'max' => 15],
             [['personal_id'], 'string', 'max' => 18],
-            [['photo'], 'string', 'max' => 120],
-            [['skill'], 'string', 'max' => 255]
+            [['photo'], 'string', 'max' => 120]
         ];
     }
 
@@ -121,6 +132,14 @@ class Employee extends \yii\db\ActiveRecord
         'gender'=>[
             'm'=>'ชาย',
             'w'=>'หญิง'
+        ],
+        'skill'=>[
+            'php'=>'PHP',
+            'mysql'=>'MySQL',
+            'css'=>'CSS',
+            'js'=>'Javascript',
+            'node.js'=>'Node.js',
+            'angularjs'=>'AngularJs'
         ]
       ];
       return array_key_exists($type, $items) ? $items[$type] : [];
@@ -129,6 +148,10 @@ class Employee extends \yii\db\ActiveRecord
     public function getLabelFromKey($type,$value,$emptyText=null){
       $items =  $this->itemAilas($type);
       return array_key_exists($value, $items) ? $items[$value] : $emptyText;
+    }
+
+    public function getItemSkill(){
+      return $this->itemAilas('skill');
     }
 
     public function getItemGender(){
@@ -153,5 +176,17 @@ class Employee extends \yii\db\ActiveRecord
 
     public function getEmail(){
       return $this->user->email;
+    }
+
+    public function skillToArray(){
+      $this->skill = $this->stringToArray($this->skill);
+    }
+
+    public function stringToArray($value){
+      return empty($value) ? null :explode(',', $value);
+    }
+
+    public function arrayToString($value){
+      return is_array($value) ? implode(',', $value) : null ;
     }
 }

@@ -3,17 +3,19 @@
 namespace backend\controllers;
 
 use Yii;
+use common\models\Employee;
 use common\models\User;
-use backend\models\UserSearch;
+use frontend\models\EmployeeSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
+use yii\base\Model;
 
 /**
- * ManageUserController implements the CRUD actions for User model.
+ * EmployeeController implements the CRUD actions for Employee model.
  */
-class ManageUserController extends Controller
+class EmployeeController extends Controller
 {
     public function behaviors()
     {
@@ -23,17 +25,17 @@ class ManageUserController extends Controller
                 'actions' => [
                     'delete' => ['post'],
                 ],
-            ],
+            ]
         ];
     }
 
     /**
-     * Lists all User models.
+     * Lists all Employee models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel = new UserSearch();
+        $searchModel = new EmployeeSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -43,7 +45,7 @@ class ManageUserController extends Controller
     }
 
     /**
-     * Displays a single User model.
+     * Displays a single Employee model.
      * @param integer $id
      * @return mixed
      */
@@ -55,30 +57,40 @@ class ManageUserController extends Controller
     }
 
     /**
-     * Creates a new User model.
+     * Creates a new Employee model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new User();
+        $model = new Employee();
+        $modelUser = new User();
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            $model->setPassword($model->password);
-            $model->generateAuthKey();
-            if($model->save()){
-              $model->assignment();
+        if ($model->load(Yii::$app->request->post()) && $modelUser->load(Yii::$app->request->post()) && Model::validateMultiple([$model,$modelUser])) {
+            $modelUser->setPassword($modelUser->password);
+            $modelUser->generateAuthKey();
+
+            if($modelUser->save()){
+
+              $auth = Yii::$app->authManager;
+              $authorRole = $auth->getRole('Author');
+              $auth->assign($authorRole, $modelUser->getId());
+
+              $model->user_id = $modelUser->id;
+              $model->save();
             }
+
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('create', [
                 'model' => $model,
+                'modelUser'=>$modelUser
             ]);
         }
     }
 
     /**
-     * Updates an existing User model.
+     * Updates an existing Employee model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -86,29 +98,34 @@ class ManageUserController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-        $model->getRoleByUser();
-        $model->password = $model->password_hash;
-        $model->confirm_password = $model->password_hash;
-        $oldPass = $model->password_hash;
+        $modelUser = $this->findModelUser($model->user_id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-          if($oldPass!==$model->password){
-            $model->setPassword($model->password);
-          }
-          if($model->save()){
-            $model->assignment();
-          }
+        $modelUser->getRoleByUser();
+        $modelUser->password = $modelUser->password_hash;
+        $modelUser->confirm_password = $modelUser->password_hash;
+        $oldPass = $modelUser->password_hash;
 
+        $model->skillToArray();
+
+        if ($model->load(Yii::$app->request->post()) && $modelUser->load(Yii::$app->request->post()) && Model::validateMultiple([$model,$modelUser])) {
+            if($oldPass!==$modelUser->password){
+              $modelUser->setPassword($modelUser->password);
+            }
+            if($modelUser->save()){
+              $modelUser->assignment();
+            }
+            $model->save();
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('update', [
                 'model' => $model,
+                'modelUser'=>$modelUser
             ]);
         }
     }
 
     /**
-     * Deletes an existing User model.
+     * Deletes an existing Employee model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -121,13 +138,21 @@ class ManageUserController extends Controller
     }
 
     /**
-     * Finds the User model based on its primary key value.
+     * Finds the Employee model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return User the loaded model
+     * @return Employee the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
+    {
+        if (($model = Employee::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+    }
+    protected function findModelUser($id)
     {
         if (($model = User::findOne($id)) !== null) {
             return $model;

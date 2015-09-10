@@ -9,6 +9,64 @@ class RbacController extends \yii\console\Controller {
   // public function actionInit(){
   //   Console::output('Yii 2 Learning.');
   // }
+  //
+
+  public function actionRbacurl(){
+
+    $auth = Yii::$app->authManager;
+    $auth->removeAll();
+    Console::output('Removing All! RBAC.....');
+
+    $blog   = $auth->createPermission('/employee/*');
+    $auth->add($blog);
+    $index  = $auth->createPermission('/employee/index');
+    $auth->add($index);
+    $view   = $auth->createPermission('/employee/view');
+    $auth->add($view);
+    $create = $auth->createPermission('/employee/create');
+    $auth->add($create);
+    $update = $auth->createPermission('/employee/update');
+    $auth->add($update);
+    $delete = $auth->createPermission('/employee/delete');
+    $auth->add($delete);
+
+    $loginToBackend = $auth->createPermission('loginToBackend');
+    $loginToBackend->description = 'ล็อกอินเข้าใช้งานส่วน backend';
+    $auth->add($loginToBackend);
+
+    $manageUser = $auth->createRole('ManageUser');
+    $manageUser->description = 'จัดการข้อมูลผู้ใช้งาน';
+    $auth->add($manageUser);
+
+    $author = $auth->createRole('Author');
+    $author->description = 'การเขียนบทความ';
+    $auth->add($author);
+
+    $management = $auth->createRole('Management');
+    $management->description = 'จัดการข้อมูลผู้ใช้งานและบทความ';
+    $auth->add($management);
+
+    $admin = $auth->createRole('Admin');
+    $admin->description = 'สำหรับการดูแลระบบ';
+    $auth->add($admin);
+
+    $auth->addChild($author,$blog);
+    $auth->addChild($author,$index);
+    $auth->addChild($author,$view);
+    $auth->addChild($author,$create);
+    $auth->addChild($author,$update);
+    $auth->addChild($author,$delete);
+
+    $auth->addChild($management, $loginToBackend);
+    $auth->addChild($management, $author);
+    $auth->addChild($admin, $management);
+
+    $auth->assign($admin, 1);
+    $auth->assign($management, 2);
+    $auth->assign($author, 3);
+    Console::output('Success! RBAC roles has been added.');
+
+  }
 
   public function actionInit(){
     $auth = Yii::$app->authManager;
