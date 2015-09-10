@@ -24,12 +24,21 @@ $this->params['breadcrumbs'][] = $this->title;
         'filterModel' => $searchModel,
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
-
-            'id',
-            'title',
-            'name',
-            'surname',
-            'gender',
+            'username',
+            'email',
+            'fullname',
+            'personal_id',
+            // 'id',
+            // 'title',
+            // 'name',
+            // 'surname',
+            [
+              'attribute'=>'gender',
+              'filter'=>$searchModel->getItemGender(),
+              'value'=>function($model){
+                return $model->genderName;
+              }
+            ],
             // 'birthday',
             // 'height',
             // 'weight',
@@ -48,7 +57,7 @@ $this->params['breadcrumbs'][] = $this->title;
             // 'created_by',
             // 'created_at',
             // 'updated_by',
-            // 'updated_at',
+             'updated_at:dateTime',
 
             ['class' => 'yii\grid\ActionColumn'],
         ],

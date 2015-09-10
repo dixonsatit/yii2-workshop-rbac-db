@@ -65,7 +65,7 @@ class Employee extends \yii\db\ActiveRecord
             [['name', 'surname'], 'string', 'max' => 150],
             [['blood_type'], 'string', 'max' => 10],
             [['ceallphone'], 'string', 'max' => 15],
-            [['personal_id'], 'string', 'max' => 16],
+            [['personal_id'], 'string', 'max' => 18],
             [['photo'], 'string', 'max' => 120],
             [['skill'], 'string', 'max' => 255]
         ];
@@ -77,11 +77,15 @@ class Employee extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
+            'username' => Yii::t('app', 'ชื่อผู้ใช้งาน'),
+            'email' => Yii::t('app', 'อีเมล์'),
+            'fullname' => Yii::t('app', 'ชื่อ-นามสกุล'),
             'id' => Yii::t('app', 'ID'),
             'title' => Yii::t('app', 'คำนำหน้า'),
             'name' => Yii::t('app', 'ชื่อ'),
             'surname' => Yii::t('app', 'นามสกุล'),
             'gender' => Yii::t('app', 'เพศ'),
+            'genderName' => Yii::t('app', 'เพศ'),
             'birthday' => Yii::t('app', 'วันเกิด'),
             'height' => Yii::t('app', 'ส่วนสูง'),
             'weight' => Yii::t('app', 'น้ำหนัก'),
@@ -96,10 +100,10 @@ class Employee extends \yii\db\ActiveRecord
             'salary' => Yii::t('app', 'เงินเดือน'),
             'department_id' => Yii::t('app', 'แผนก'),
             'user_id' => Yii::t('app', 'รหัส account พนักงาน'),
-            'created_by' => Yii::t('app', 'Created By'),
-            'created_at' => Yii::t('app', 'Created At'),
-            'updated_by' => Yii::t('app', 'Updated By'),
-            'updated_at' => Yii::t('app', 'Updated At'),
+            'created_by' => Yii::t('app', 'สร้างโดย'),
+            'created_at' => Yii::t('app', 'สร้างวันที่'),
+            'updated_by' => Yii::t('app', 'แก้ไขโดย'),
+            'updated_at' => Yii::t('app', 'แก้ไขวันที่'),
         ];
     }
 
@@ -110,5 +114,44 @@ class Employee extends \yii\db\ActiveRecord
     public static function find()
     {
         return new EmployeeQuery(get_called_class());
+    }
+
+    public function itemAilas($type){
+      $items = [
+        'gender'=>[
+            'm'=>'ชาย',
+            'w'=>'หญิง'
+        ]
+      ];
+      return array_key_exists($type, $items) ? $items[$type] : [];
+    }
+
+    public function getLabelFromKey($type,$value,$emptyText=null){
+      $items =  $this->itemAilas($type);
+      return array_key_exists($value, $items) ? $items[$value] : $emptyText;
+    }
+
+    public function getItemGender(){
+      return $this->itemAilas('gender');
+    }
+
+    public function getGenderName(){
+      return $this->getLabelFromKey('gender',$this->gender);
+    }
+
+    public function getUser(){
+      return $this->hasOne(User::className(),['id'=>'user_id']);
+    }
+
+    public function getFullname(){
+      return $this->title.$this->name.' '.$this->surname;
+    }
+
+    public function getUsername(){
+      return $this->user->username;
+    }
+
+    public function getEmail(){
+      return $this->user->email;
     }
 }

@@ -11,6 +11,7 @@ use yii\widgets\ActiveForm;
 <div class="employee-form">
 
     <?php $form = ActiveForm::begin(); ?>
+    <?php echo $form->errorSummary([$model,$modelUser]); ?>
     <fieldset>
       <legend>ข้อมูลส่วนตัวพนักงาน</legend>
 
@@ -28,7 +29,7 @@ use yii\widgets\ActiveForm;
 
 <div class="row">
   <div class="col-md-3">
-    <?= $form->field($model, 'gender')->dropDownList([ 'm' => 'M', 'w' => 'W', ], ['prompt' => '']) ?>
+    <?= $form->field($model, 'gender')->dropDownList($model->getItemGender(), ['prompt' => '']) ?>
   </div>
   <div class="col-md-3">
       <?= $form->field($model, 'birthday')->textInput() ?>
@@ -62,7 +63,10 @@ use yii\widgets\ActiveForm;
 
 <div class="row">
   <div class="col-md-4">
-      <?= $form->field($model, 'personal_id')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'personal_id')->widget(\yii\widgets\MaskedInput::className(), [
+    'mask' => '9-9999-99999-99-9',
+]) ?>
+
   </div>
   <div class="col-md-4">
     <?= $form->field($model, 'department_id')->textInput() ?>

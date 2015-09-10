@@ -107,12 +107,23 @@ class EmployeeController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+        $modelUser = $this->findModelUser($model->user_id);
+        $modelUser->scenario = 'registration';
+        $modelUser->password = $modelUser->password_hash;
+        $oldPass = $modelUser->password_hash;
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post()) && $modelUser->load(Yii::$app->request->post()) && Model::validateMultiple([$model,$modelUser])) {
+            if($oldPass!==$modelUser->password){
+              $modelUser->setPassword($modelUser->password);
+            }
+            $modelUser->save();
+            $model->save();
+
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('update', [
                 'model' => $model,
+                'modelUser'=>$modelUser
             ]);
         }
     }
@@ -140,6 +151,14 @@ class EmployeeController extends Controller
     protected function findModel($id)
     {
         if (($model = Employee::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+    }
+    protected function findModelUser($id)
+    {
+        if (($model = User::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
