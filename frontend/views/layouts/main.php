@@ -27,8 +27,9 @@ AppAsset::register($this);
 
 <div class="wrap">
     <?php
+    $logo = Html::img(Yii::$app->request->baseUrl.'/images/yii2learning-logo.svg',['style'=>'width:30px;display:inline;']);
     NavBar::begin([
-        'brandLabel' => 'Yii 2 Learning',
+        'brandLabel' => $logo.'Yii 2 Learning',
         'brandUrl' => Yii::$app->homeUrl,
         'options' => [
             'class' => 'navbar-default navbar-fixed-top',
@@ -36,6 +37,7 @@ AppAsset::register($this);
     ]);
     $menuItems = [
         ['label' => 'Home', 'url' => ['/site/index']],
+        ['label' => 'Employee', 'url' => ['/employee/index']],
         ['label' => 'Blog', 'url' => ['/blog/index']],
         ['label' => 'About', 'url' => ['/site/about']],
         ['label' => 'Contact', 'url' => ['/site/contact']],
