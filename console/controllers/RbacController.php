@@ -76,18 +76,6 @@ class RbacController extends \yii\console\Controller {
     $rule = new \common\rbac\AuthorRule;
     $auth->add($rule);
 
-    // $index  = $auth->createPermission('blog/index');
-    // $auth->add($index);
-    // $view   = $auth->createPermission('blog/view');
-    // $auth->add($view);
-    // $create = $auth->createPermission('blog/create');
-    // $auth->add($create);
-    // $update = $auth->createPermission('blog/update');
-    // $update->ruleName = $rule->name;
-    // $auth->add($update);
-    // $delete = $auth->createPermission('blog/delete');
-    // $auth->add($delete);
-
     $createPost = $auth->createPermission('createBlog');
     $createPost->description = 'สร้าง blog';
     $auth->add($createPost);
@@ -120,12 +108,6 @@ class RbacController extends \yii\console\Controller {
     $updateOwnPost->description = 'แก้ไขบทความตัวเอง';
     $updateOwnPost->ruleName = $rule->name;
     $auth->add($updateOwnPost);
-
-    // $auth->addChild($author,$index);
-    // $auth->addChild($author,$view);
-    // $auth->addChild($author,$create);
-    // $auth->addChild($author,$update);
-    // $auth->addChild($management, $delete);
 
     $auth->addChild($author,$createPost);
     $auth->addChild($updateOwnPost, $updatePost);

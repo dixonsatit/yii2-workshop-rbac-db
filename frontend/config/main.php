@@ -29,5 +29,37 @@ return [
             'errorAction' => 'site/error',
         ],
     ],
+    'as globalAccess'=>[
+       'class'=>'\common\rbac\GlobalAccessBehavior',
+       'rules'=>[
+         [
+            'controllers'=>['site','debug/default'],
+            'allow' => true,
+            'roles' => ['@','?'],
+            'actions'=>['error','index','about','contact']
+          ],[
+            'controllers'=>['site'],
+            'allow' => true,
+            'roles' => ['@'],
+            'actions'=>['logout']
+          ],[
+            'controllers'=>['site'],
+            'allow' => true,
+            'roles' => ['?'],
+            'actions'=>['signup','login','request-password-reset','reset-password']
+          ],[
+            'controllers'=>['blog'],
+            'allow' => true,
+            'roles'  => ['Author']
+          ],[
+               'controllers'=>['debug/default'],
+               'allow' => true,
+               'roles' => ['?'],
+          ],[
+            'allow'=>true,
+            'roles'=>['Author']
+            ]
+        ]
+     ],
     'params' => $params,
 ];
